@@ -62,6 +62,11 @@ export default class Model {
 					}
 				})
 			}
+			gltf.scene.traverse((child) => {
+				if (child.isMesh){
+					child.material.side = 0
+				}
+			})
 			if (this.animations) {
 				this.mixer = new AnimationMixer(gltf.scene)
 				gltf.animations.forEach((clip) => {

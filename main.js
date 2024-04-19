@@ -24,6 +24,11 @@ const clock = new THREE.Clock()
 const controls = new OrbitControls(camera, renderer.domElement)
 const pointer = new THREE.Vector2()
 const raycaster = new THREE.Raycaster()
+let check = 0
+//set it to true when the audio plays in the playAudio function
+const startTime = 0
+let endTime = 0
+let isplaying = false
 
 init()
 function init() {
@@ -45,10 +50,13 @@ function init() {
 	scene.add(meshes.standard)
 	scene.add(lights.defaultLight)
 
-	models()
-	raycast()
-	resize()
-	animate()
+	//load aduio before everythbg else
+	//audio.addEventListener('canplaythrough', (event)=> {
+		models()
+		raycast()
+		resize()
+		animate()
+	//})
 }
 
 function resize() {
@@ -64,10 +72,10 @@ function models(){
 		name:'oiiai',
 		scene: scene,
 		meshes: meshes,
-		url: 'oiiai.glb',
+		url: 'catPNG.glb',
 		//if i take out matcap, it prompts the alert twice in a row when clicked
 		//replace: true,
-		//replaceURL: 'mat.png',
+		//replaceURL: 'cat.png',
 		scale: new THREE.Vector3(1, 1, 1),
 		position: new THREE.Vector3(-0.2, -1, 2),
 	})
@@ -80,13 +88,40 @@ function raycast(){
 		pointer.y = -(event.clientY/window.innerHeight)*2+1
 		raycaster.setFromCamera(pointer, camera)
 		const intersects = raycaster.intersectObjects(scene.children, true)
-
 		for(let i = 0; i < intersects.length; i ++){
 			let object = intersects[i].object
 			console.log(object)
 			while(object){
 				if(object.userData.groupName === 'oiiai'){
-					alert('hi')
+					check ++
+					if (check > 0 && check < 2){
+						//for some reason endTime always starts at 5
+						endTime -= 3
+						playAudio()
+						gsap.to(meshes.oiiai.rotation, {
+							y: '+=100',
+							duration: 20
+						})
+					}
+					if (check == 2){
+						endTime += 3
+						playAudio()
+						gsap.to(meshes.oiiai.rotation, {
+							y: '+=100',
+							duration: 20
+						})
+					}
+					else {
+						endTime += 5
+						playAudio()
+						gsap.to(meshes.oiiai.rotation, {
+							y: '+=300',
+							duration: 20
+						})
+					}
+					// console.log(check)
+					// console.log(endTime)
+
 					break
 				}
 				if(object.userData.groupName === 'target1'){
@@ -103,6 +138,7 @@ function raycast(){
 function animate() {
 	requestAnimationFrame(animate)
 	const delta = clock.getDelta()
+	const elapseTime = clock.getElapsedTime()
 
 	meshes.default.rotation.x += 0.01
 	meshes.default.rotation.z += 0.01
@@ -110,7 +146,34 @@ function animate() {
 	meshes.standard.rotation.x += 0.01
 	meshes.standard.rotation.z += 0.01
 
+	if (meshes.oiiai && isplaying){
+		meshes.oiiai.position.y = Math.sin(elapseTime*12)/4
+	}
+
 	// meshes.default.scale.x += 0.01
 
 	renderer.render(scene, camera)
 }
+
+
+function playAudio() {
+	const audio = document.getElementById('audio')
+
+	audio.addEventListener('loadedmetadata', () => {
+		audio.currentTime = startTime // set start time
+	})
+
+	audio.addEventListener('timeupdate', () => {
+		if (audio.currentTime >= endTime) {
+			audio.pause() // pause the playback
+			isplaying = false;
+		}
+	})
+
+	console.log('playing')
+	audio.play() //
+	isplaying = true;
+
+}
+
+//document.addEventListener('DOMContentLoaded', playAudio)
