@@ -33,6 +33,7 @@ let isplaying = false
 init()
 function init() {
 	renderer.setSize(window.innerWidth, window.innerHeight)
+	renderer.setClearColor(new THREE.Color(0xffffff))
 	document.body.appendChild(renderer.domElement)
 
 	//meshes
@@ -46,8 +47,8 @@ function init() {
 	meshes.default.scale.set(2, 2, 2)
 
 	//scene operations
-	scene.add(meshes.default)
-	scene.add(meshes.standard)
+	//scene.add(meshes.default)
+	//scene.add(meshes.standard)
 	scene.add(lights.defaultLight)
 
 	//load aduio before everythbg else
@@ -77,7 +78,7 @@ function models(){
 		//replace: true,
 		//replaceURL: 'cat.png',
 		scale: new THREE.Vector3(1, 1, 1),
-		position: new THREE.Vector3(-0.2, -1, 2),
+		position: new THREE.Vector3(-0.2, -1.1, 2),
 	})
 	oiiai.init()
 }
@@ -96,28 +97,28 @@ function raycast(){
 					check ++
 					if (check > 0 && check < 2){
 						//for some reason endTime always starts at 5
-						endTime -= 3
+						endTime -= 2.5
 						playAudio()
-						gsap.to(meshes.oiiai.rotation, {
-							y: '+=100',
-							duration: 20
-						})
+						// gsap.to(meshes.oiiai.rotation, {
+						// 	y: '+=100',
+						// 	duration: 20
+						// })
 					}
 					if (check == 2){
-						endTime += 3
+						endTime += 3.5
 						playAudio()
-						gsap.to(meshes.oiiai.rotation, {
-							y: '+=100',
-							duration: 20
-						})
+						// gsap.to(meshes.oiiai.rotation, {
+						// 	y: '+=100',
+						// 	duration: 20
+						// })
 					}
 					else {
 						endTime += 5
 						playAudio()
-						gsap.to(meshes.oiiai.rotation, {
-							y: '+=300',
-							duration: 20
-						})
+						// gsap.to(meshes.oiiai.rotation, {
+						// 	y: '+=300',
+						// 	duration: 20
+						// })
 					}
 					// console.log(check)
 					// console.log(endTime)
@@ -146,8 +147,13 @@ function animate() {
 	meshes.standard.rotation.x += 0.01
 	meshes.standard.rotation.z += 0.01
 
-	if (meshes.oiiai && isplaying){
-		meshes.oiiai.position.y = Math.sin(elapseTime*12)/4
+	if(check <3 && meshes.oiiai && isplaying){
+		meshes.oiiai.position.y = Math.sin(elapseTime*12)/4 -1
+		meshes.oiiai.rotation.y += 50
+	}
+	else if (meshes.oiiai && isplaying){
+		meshes.oiiai.position.y = Math.sin(elapseTime*12)/4 -1
+		meshes.oiiai.rotation.y += 300
 	}
 
 	// meshes.default.scale.x += 0.01
