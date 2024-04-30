@@ -4,6 +4,7 @@ import { addBoilerPlateMesh, addStandardMesh } from './addMeshes'
 import { addLight } from './addLights'
 import Model from './Model'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { postprocessing } from './postprocessing'
 import {gsap} from 'gsap'
 
 const scene = new THREE.Scene()
@@ -25,10 +26,11 @@ const controls = new OrbitControls(camera, renderer.domElement)
 const pointer = new THREE.Vector2()
 const raycaster = new THREE.Raycaster()
 let check = 0
-//set it to true when the audio plays in the playAudio function
-const startTime = 0
+let composer
+const startTime = 5
 let endTime = 0
 let isplaying = false
+let effects = false;
 
 init()
 function init() {
@@ -36,19 +38,11 @@ function init() {
 	renderer.setClearColor(new THREE.Color(0xffffff))
 	document.body.appendChild(renderer.domElement)
 
-	//meshes
-	meshes.default = addBoilerPlateMesh()
-	meshes.standard = addStandardMesh()
-
 	//lights
 	lights.defaultLight = addLight()
 
-	//changes
-	meshes.default.scale.set(2, 2, 2)
+	// composer = postprocessing(scene, camera, renderer)
 
-	//scene operations
-	//scene.add(meshes.default)
-	//scene.add(meshes.standard)
 	scene.add(lights.defaultLight)
 
 	//load aduio before everythbg else
@@ -91,44 +85,29 @@ function raycast(){
 		const intersects = raycaster.intersectObjects(scene.children, true)
 		for(let i = 0; i < intersects.length; i ++){
 			let object = intersects[i].object
-			console.log(object)
+			//console.log(object)
 			while(object){
 				if(object.userData.groupName === 'oiiai'){
 					check ++
 					if (check > 0 && check < 2){
 						//for some reason endTime always starts at 5
-						endTime -= 2.5
+						endTime -= 3
 						playAudio()
-						// gsap.to(meshes.oiiai.rotation, {
-						// 	y: '+=100',
-						// 	duration: 20
-						// })
 					}
 					if (check == 2){
-						endTime += 3.5
+						endTime += 2.4
 						playAudio()
-						// gsap.to(meshes.oiiai.rotation, {
-						// 	y: '+=100',
-						// 	duration: 20
-						// })
 					}
 					else {
 						endTime += 5
 						playAudio()
-						// gsap.to(meshes.oiiai.rotation, {
-						// 	y: '+=300',
-						// 	duration: 20
-						// })
 					}
 					// console.log(check)
 					// console.log(endTime)
-
+					console.log(endTime)
 					break
 				}
-				if(object.userData.groupName === 'target1'){
-					alert('bye')
-					break
-				}
+				//if time is 16 seconds in, add effects
 				object = object.parent
 			}
 		}
@@ -140,22 +119,19 @@ function animate() {
 	requestAnimationFrame(animate)
 	const delta = clock.getDelta()
 	const elapseTime = clock.getElapsedTime()
-
-	meshes.default.rotation.x += 0.01
-	meshes.default.rotation.z += 0.01
-
-	meshes.standard.rotation.x += 0.01
-	meshes.standard.rotation.z += 0.01
+	// console.log(testDiv)
 
 	if(check <3 && meshes.oiiai && isplaying){
 		meshes.oiiai.position.y = Math.sin(elapseTime*12)/4 -1
 		meshes.oiiai.rotation.y += 50
 	}
+
 	else if (meshes.oiiai && isplaying){
 		meshes.oiiai.position.y = Math.sin(elapseTime*12)/4 -1
 		meshes.oiiai.rotation.y += 300
 	}
 
+	// composer.composer.render()
 	// meshes.default.scale.x += 0.01
 
 	renderer.render(scene, camera)
@@ -164,19 +140,28 @@ function animate() {
 
 function playAudio() {
 	const audio = document.getElementById('audio')
-
+	//composer.bloom.enabled = effects
+	// composer.glitch.enabled = effects
+	
 	audio.addEventListener('loadedmetadata', () => {
 		audio.currentTime = startTime // set start time
 	})
 
 	audio.addEventListener('timeupdate', () => {
 		if (audio.currentTime >= endTime) {
+			console.log('pausing')
 			audio.pause() // pause the playback
 			isplaying = false;
 		}
 	})
+	// //moved it out of eventListener
+	// if (audio.currentTime >= 26){
+	// 	effects = true
+	// }
+	// if (audio.currentTime >= 40){
+	// 	composer.glitch.goWild = false
+	// }
 
-	console.log('playing')
 	audio.play() //
 	isplaying = true;
 
