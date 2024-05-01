@@ -31,6 +31,7 @@ const startTime = 5
 let endTime = 0
 let isplaying = false
 let effects = false;
+let invertToggle = false;
 
 init()
 function init() {
@@ -41,7 +42,7 @@ function init() {
 	//lights
 	lights.defaultLight = addLight()
 
-	// composer = postprocessing(scene, camera, renderer)
+	composer = postprocessing(scene, camera, renderer)
 
 	scene.add(lights.defaultLight)
 
@@ -131,36 +132,48 @@ function animate() {
 		meshes.oiiai.rotation.y += 300
 	}
 
-	// composer.composer.render()
+	composer.composer.render()
+	composer.glitch.enabled = effects
+
+	document.addEventListener('keydown', function(event) {
+		if (event.key == 'd'){
+			invertToggle = true;
+		}
+		else {
+			effects = true;
+		}
+	});
+	if (invertToggle) {
+        document.body.classList.add('invert-colors');
+    }
+	document.addEventListener('keyup', function(event) {
+		if(event.key == 'd'){
+			invertToggle=false;
+			document.body.classList.remove('invert-colors');
+		}
+		else {
+			effects = false;
+		}
+	});
 	// meshes.default.scale.x += 0.01
 
-	renderer.render(scene, camera)
+	//renderer.render(scene, camera)
 }
 
 
 function playAudio() {
 	const audio = document.getElementById('audio')
-	//composer.bloom.enabled = effects
-	// composer.glitch.enabled = effects
-	
+	//composer.bloom.enabled = effects	
 	audio.addEventListener('loadedmetadata', () => {
 		audio.currentTime = startTime // set start time
 	})
 
 	audio.addEventListener('timeupdate', () => {
 		if (audio.currentTime >= endTime) {
-			console.log('pausing')
 			audio.pause() // pause the playback
 			isplaying = false;
 		}
 	})
-	// //moved it out of eventListener
-	// if (audio.currentTime >= 26){
-	// 	effects = true
-	// }
-	// if (audio.currentTime >= 40){
-	// 	composer.glitch.goWild = false
-	// }
 
 	audio.play() //
 	isplaying = true;
