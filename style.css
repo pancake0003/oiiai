@@ -67,6 +67,12 @@ h1 {
   filter: invert(100%);
 }
 
+.saturate {
+   filter: saturate(10); 
+}
+
+
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;

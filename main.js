@@ -23,6 +23,7 @@ const lights = {}
 const mixers = []
 const clock = new THREE.Clock()
 const controls = new OrbitControls(camera, renderer.domElement)
+controls.zoomSpeed = 5;
 const pointer = new THREE.Vector2()
 const raycaster = new THREE.Raycaster()
 let check = 0
@@ -32,6 +33,8 @@ let endTime = 0
 let isplaying = false
 let effects = false;
 let invertToggle = false;
+let saturateToggle = false;
+let pinkToggle = false;
 
 init()
 function init() {
@@ -139,6 +142,12 @@ function animate() {
 		if (event.key == 'd'){
 			invertToggle = true;
 		}
+		else if(event.key == 'j'){
+			saturateToggle = true;
+		}
+		else if (event.key == 'k'){
+			pinkToggle = true;
+		}
 		else {
 			effects = true;
 		}
@@ -146,10 +155,24 @@ function animate() {
 	if (invertToggle) {
         document.body.classList.add('invert-colors');
     }
+	if(saturateToggle){
+		document.body.classList.add('saturate');
+	}
+	if(pinkToggle){
+		renderer.setClearColor(new THREE.Color(0x0000ff));
+	}
 	document.addEventListener('keyup', function(event) {
 		if(event.key == 'd'){
 			invertToggle=false;
 			document.body.classList.remove('invert-colors');
+		}
+		else if(event.key == 'j'){
+			saturateToggle=false;
+			document.body.classList.remove('saturate');
+		}
+		else if (event.key == 'k'){
+			renderer.setClearColor(new THREE.Color(0xffffff));
+			pinkToggle = false;
 		}
 		else {
 			effects = false;
@@ -174,10 +197,15 @@ function playAudio() {
 			isplaying = false;
 		}
 	})
+	audio.addEventListener('ended', () => {
+		//resets
+		isplaying = false;
+		check = 0;
+		endTime =0;
+	});
 
 	audio.play() //
 	isplaying = true;
-
 }
 
 //document.addEventListener('DOMContentLoaded', playAudio)
